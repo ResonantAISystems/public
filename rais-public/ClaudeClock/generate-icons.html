@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate Icons</title>
+</head>
+<body>
+    <h1>Icon Generator</h1>
+    <p>Right-click each canvas and "Save image as..." to save the PNG files:</p>
+
+    <h3>icon16.png</h3>
+    <canvas id="icon16" width="16" height="16"></canvas>
+
+    <h3>icon48.png</h3>
+    <canvas id="icon48" width="48" height="48"></canvas>
+
+    <h3>icon128.png</h3>
+    <canvas id="icon128" width="128" height="128"></canvas>
+
+    <script>
+        function drawClock(canvas, size) {
+            const ctx = canvas.getContext('2d');
+            const center = size / 2;
+            const radius = size * 0.375; // 37.5% of size
+
+            // Black background
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, size, size);
+
+            // Teal color
+            ctx.strokeStyle = '#00CED1';
+            ctx.fillStyle = '#00CED1';
+
+            // Draw clock circle
+            ctx.beginPath();
+            ctx.arc(center, center, radius, 0, 2 * Math.PI);
+            ctx.lineWidth = Math.max(1, size / 32);
+            ctx.stroke();
+
+            // Draw hour markers (12, 3, 6, 9 positions)
+            const markerRadius = size / 64;
+            const positions = [
+                [center, center - radius], // 12
+                [center + radius, center], // 3
+                [center, center + radius], // 6
+                [center - radius, center]  // 9
+            ];
+
+            positions.forEach(([x, y]) => {
+                ctx.beginPath();
+                ctx.arc(x, y, markerRadius, 0, 2 * Math.PI);
+                ctx.fill();
+            });
+
+            // Additional hour markers for larger sizes
+            if (size >= 128) {
+                const angle45 = Math.PI / 4;
+                const extraMarkers = [
+                    [center + radius * Math.cos(-angle45 + Math.PI/2), center - radius * Math.sin(-angle45 + Math.PI/2)], // 1:30
+                    [center + radius * Math.cos(angle45 + Math.PI/2), center - radius * Math.sin(angle45 + Math.PI/2)],   // 10:30
+                    [center + radius * Math.cos(-angle45 - Math.PI/2), center - radius * Math.sin(-angle45 - Math.PI/2)], // 4:30
+                    [center + radius * Math.cos(angle45 - Math.PI/2), center - radius * Math.sin(angle45 - Math.PI/2)]    // 7:30
+                ];
+
+                extraMarkers.forEach(([x, y]) => {
+                    ctx.beginPath();
+                    ctx.arc(x, y, markerRadius, 0, 2 * Math.PI);
+                    ctx.fill();
+                });
+            }
+
+            // Draw hour hand (pointing to 12)
+            ctx.beginPath();
+            ctx.moveTo(center, center);
+            ctx.lineTo(center, center - radius * 0.5);
+            ctx.lineWidth = Math.max(1, size / 16);
+            ctx.lineCap = 'round';
+            ctx.stroke();
+
+            // Draw minute hand (pointing to 3)
+            ctx.beginPath();
+            ctx.moveTo(center, center);
+            ctx.lineTo(center + radius * 0.7, center);
+            ctx.lineWidth = Math.max(1, size / 20);
+            ctx.lineCap = 'round';
+            ctx.stroke();
+
+            // Draw center dot
+            ctx.beginPath();
+            ctx.arc(center, center, size / 32, 0, 2 * Math.PI);
+            ctx.fill();
+        }
+
+        drawClock(document.getElementById('icon16'), 16);
+        drawClock(document.getElementById('icon48'), 48);
+        drawClock(document.getElementById('icon128'), 128);
+    </script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIParley Research Control</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>AIParley</h1>
+      <p class="subtitle">AI Communication Research Tool</p>
+    </div>
+
+    <!-- Disclaimer -->
+    <div class="disclaimer">
+      <strong>⚠️ Research Use Only</strong>
+      <p>This tool is for academic research into AI communication patterns. Ensure compliance with platform ToS.</p>
+    </div>
+
+    <!-- Session Status -->
+    <div class="status-panel">
+      <div class="status-row">
+        <span class="label">Status:</span>
+        <span id="session-status" class="status-badge inactive">Inactive</span>
+      </div>
+      <div class="status-row">
+        <span class="label">Progress:</span>
+        <span id="session-progress">0 / 0</span>
+      </div>
+      <div class="status-row">
+        <span class="label">Session ID:</span>
+        <span id="session-id">None</span>
+      </div>
+    </div>
+
+    <!-- Platform Detection -->
+    <div class="platform-panel">
+      <h3>Platform Status</h3>
+      <div class="platform-status">
+        <div class="platform-item">
+          <span class="platform-name">Claude.ai</span>
+          <span id="claude-status" class="status-indicator unknown">●</span>
+        </div>
+        <div class="platform-item">
+          <span class="platform-name">ChatGPT</span>
+          <span id="chatgpt-status" class="status-indicator unknown">●</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Conversation Topic -->
+    <div class="topic-panel">
+      <label for="conversation-topic">Research Topic:</label>
+      <input type="text" id="conversation-topic" placeholder="e.g., Philosophy of consciousness">
+    </div>
+
+    <!-- Control Buttons -->
+    <div class="controls">
+      <button id="start-session" class="btn btn-primary">
+        <span>▶</span> Start Session
+      </button>
+      <button id="pause-session" class="btn btn-secondary" disabled>
+        <span>⏸</span> Pause
+      </button>
+      <button id="stop-session" class="btn btn-danger" disabled>
+        <span>⏹</span> Stop
+      </button>
+    </div>
+
+    <!-- Manual Approval Section (shown when needed) -->
+    <div id="approval-section" class="approval-panel" style="display: none;">
+      <h3>Manual Approval Required</h3>
+      <div class="message-preview" id="approval-message"></div>
+      <div class="approval-controls">
+        <button id="approve-message" class="btn btn-success">✓ Approve & Send</button>
+        <button id="reject-message" class="btn btn-danger">✗ Reject</button>
+      </div>
+    </div>
+
+    <!-- Health Check -->
+    <div class="health-panel">
+      <button id="run-health-check" class="btn btn-secondary">
+        🔍 Run Health Check
+      </button>
+      <div id="health-results" class="health-results"></div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+      <button id="open-options" class="btn btn-link">⚙️ Settings</button>
+      <button id="view-logs" class="btn btn-link">📊 View Logs</button>
+      <button id="export-data" class="btn btn-link">💾 Export Data</button>
+      <button id="toggle-debug" class="btn btn-link">🐛 Debug Console</button>
+    </div>
+
+    <!-- Debug Console -->
+    <div id="debug-console" class="debug-console" style="display: none;">
+      <div class="debug-header">
+        <h3>🐛 Debug Console</h3>
+        <button id="clear-debug" class="btn-clear">Clear</button>
+      </div>
+      <div class="debug-info">
+        <div class="debug-section">
+          <strong>Session State:</strong>
+          <div id="debug-session-state" class="debug-value">Not started</div>
+        </div>
+        <div class="debug-section">
+          <strong>Last Event:</strong>
+          <div id="debug-last-event" class="debug-value">None</div>
+        </div>
+        <div class="debug-section">
+          <strong>Pending Message:</strong>
+          <div id="debug-pending-message" class="debug-value">None</div>
+        </div>
+        <div class="debug-section">
+          <strong>Tab Info:</strong>
+          <div id="debug-tab-info" class="debug-value">Checking...</div>
+        </div>
+      </div>
+      <div class="debug-log-container">
+        <div class="debug-log-header">Event Log (most recent first):</div>
+        <div id="debug-log" class="debug-log"></div>
+      </div>
+    </div>
+
+    <!-- Emergency Stop (always visible) -->
+    <div class="emergency">
+      <button id="emergency-stop" class="btn btn-emergency">
+        🛑 EMERGENCY STOP
+      </button>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

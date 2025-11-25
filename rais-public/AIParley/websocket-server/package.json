@@ -1,0 +1,26 @@
+{
+  "name": "aiparley-websocket-server",
+  "version": "1.0.0",
+  "description": "WebSocket server for AIParley multi-browser communication",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [
+    "websocket",
+    "aiparley",
+    "research"
+  ],
+  "author": "AI Research Lab",
+  "license": "MIT",
+  "dependencies": {
+    "ws": "^8.14.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

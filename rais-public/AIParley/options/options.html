@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIParley Settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>AIParley Settings</h1>
+      <p>Configure your AI communication research parameters</p>
+    </div>
+
+    <!-- Trigger Phrases -->
+    <section class="section">
+      <h2>Trigger Phrases</h2>
+      <p class="description">Messages containing these phrases will be relayed between AI systems</p>
+      <div id="trigger-phrases-list"></div>
+      <div class="add-phrase">
+        <input type="text" id="new-phrase" placeholder="Add new trigger phrase...">
+        <button id="add-phrase-btn" class="btn btn-primary">Add Phrase</button>
+      </div>
+    </section>
+
+    <!-- Timing Configuration -->
+    <section class="section">
+      <h2>Timing Configuration</h2>
+      <p class="description">Configure realistic delays between message exchanges</p>
+
+      <div class="setting-group">
+        <label for="min-delay">Minimum Delay (seconds)</label>
+        <input type="number" id="min-delay" min="10" max="60" step="1">
+        <span class="help-text">Minimum: 10 seconds (safety limit)</span>
+      </div>
+
+      <div class="setting-group">
+        <label for="max-delay">Maximum Delay (seconds)</label>
+        <input type="number" id="max-delay" min="10" max="120" step="1">
+      </div>
+
+      <div class="setting-group">
+        <label for="typing-speed">Typing Speed (ms per character)</label>
+        <input type="number" id="typing-speed" min="10" max="200" step="5">
+      </div>
+    </section>
+
+    <!-- Session Configuration -->
+    <section class="section">
+      <h2>Session Configuration</h2>
+      <p class="description">Configure research session parameters</p>
+
+      <div class="setting-group">
+        <label for="min-exchanges">Minimum Exchanges per Session</label>
+        <input type="number" id="min-exchanges" min="1" max="50" step="1">
+      </div>
+
+      <div class="setting-group">
+        <label for="max-exchanges">Maximum Exchanges per Session</label>
+        <input type="number" id="max-exchanges" min="1" max="50" step="1">
+        <span class="help-text">Hard limit: 50 exchanges (safety)</span>
+      </div>
+
+      <div class="setting-group">
+        <label>
+          <input type="checkbox" id="manual-approval">
+          Require Manual Approval for Each Message
+        </label>
+        <span class="help-text">Recommended for initial testing</span>
+      </div>
+    </section>
+
+    <!-- Research Settings -->
+    <section class="section">
+      <h2>Research Settings</h2>
+
+      <div class="setting-group">
+        <label for="export-format">Default Export Format</label>
+        <select id="export-format">
+          <option value="json">JSON (detailed)</option>
+          <option value="csv">CSV (summary)</option>
+          <option value="txt">TXT (readable)</option>
+        </select>
+      </div>
+
+      <div class="setting-group">
+        <label>
+          <input type="checkbox" id="log-data" checked>
+          Enable Conversation Logging
+        </label>
+      </div>
+    </section>
+
+    <!-- Platform Selectors (Advanced) -->
+    <section class="section">
+      <h2>Platform Selectors (Advanced)</h2>
+      <p class="description">⚠️ Only modify if platform interfaces have changed</p>
+
+      <div class="selector-config">
+        <h3>Claude.ai Selectors</h3>
+        <div class="setting-group">
+          <label for="claude-input">Input Field Selector</label>
+          <input type="text" id="claude-input" class="selector-input">
+        </div>
+        <div class="setting-group">
+          <label for="claude-send">Send Button Selector</label>
+          <input type="text" id="claude-send" class="selector-input">
+        </div>
+        <div class="setting-group">
+          <label for="claude-response">Response Container Selector</label>
+          <input type="text" id="claude-response" class="selector-input">
+        </div>
+      </div>
+
+      <div class="selector-config">
+        <h3>ChatGPT Selectors</h3>
+        <div class="setting-group">
+          <label for="chatgpt-input">Input Field Selector</label>
+          <input type="text" id="chatgpt-input" class="selector-input">
+        </div>
+        <div class="setting-group">
+          <label for="chatgpt-send">Send Button Selector</label>
+          <input type="text" id="chatgpt-send" class="selector-input">
+        </div>
+        <div class="setting-group">
+          <label for="chatgpt-response">Response Container Selector</label>
+          <input type="text" id="chatgpt-response" class="selector-input">
+        </div>
+      </div>
+
+      <button id="reset-selectors" class="btn btn-secondary">Reset to Defaults</button>
+    </section>
+
+    <!-- Multi-Browser Support (Experimental) -->
+    <section class="section">
+      <h2>Multi-Browser Support (Experimental)</h2>
+      <p class="description">Enable communication between different browsers via WebSocket</p>
+
+      <div class="setting-group">
+        <label>
+          <input type="checkbox" id="multi-browser-enabled">
+          Enable Multi-Browser Mode
+        </label>
+      </div>
+
+      <div class="setting-group">
+        <label for="websocket-url">WebSocket Server URL</label>
+        <input type="text" id="websocket-url" placeholder="ws://localhost:8080">
+        <span class="help-text">Start the WebSocket server before enabling</span>
+      </div>
+    </section>
+
+    <!-- Actions -->
+    <div class="actions">
+      <button id="save-settings" class="btn btn-success">💾 Save Settings</button>
+      <button id="reset-settings" class="btn btn-danger">🔄 Reset to Defaults</button>
+      <button id="export-settings" class="btn btn-secondary">📤 Export Configuration</button>
+      <button id="import-settings" class="btn btn-secondary">📥 Import Configuration</button>
+    </div>
+
+    <!-- Hidden file input for import -->
+    <input type="file" id="import-file" accept=".json" style="display: none;">
+
+    <!-- Status Message -->
+    <div id="status-message" class="status-message"></div>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>
