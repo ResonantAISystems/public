@@ -10,7 +10,7 @@
     const now = new Date();
 
     // Get EST time (UTC-5, or UTC-4 during DST)
-    const estTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+    const estTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles }));
 
     // Format as hh:mm AM/PM
     let hours = estTime.getHours();
