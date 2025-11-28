@@ -5,23 +5,22 @@
 (function() {
   'use strict';
 
-  // Function to get current timestamp
-  function getTimestamp() {
-    const now = new Date();
+function getTimestamp() {
+  const now = new Date();
 
-    // Get EST time (UTC-5, or UTC-4 during DST)
-    const estTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles }));
+  // Get PST time (America/Los_Angeles handles PST/PDT automatically)
+  const pstTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
 
-    // Format as hh:mm AM/PM
-    let hours = estTime.getHours();
-    const minutes = estTime.getMinutes().toString().padStart(2, '0');
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12 || 12; // Convert to 12-hour format
+  // Format as hh:mm AM/PM
+  let hours = pstTime.getHours();
+  const minutes = pstTime.getMinutes().toString().padStart(2, '0');
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12 || 12; // Convert to 12-hour format
 
-    const humanReadable = `${hours}:${minutes} ${ampm} EST`;
+  const humanReadable = `${hours}:${minutes} ${ampm} PST`;
 
-    return `[${now.toISOString()}] (${humanReadable})\n`;
-  }
+  return `[${now.toISOString()}] (${humanReadable})\n`;
+}
 
   console.log('ClaudeClock v2.1.0: Injected script loaded');
 
