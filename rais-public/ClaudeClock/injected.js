@@ -1,5 +1,6 @@
-// ClaudeClock - Injected Script v2.0.0
+// ClaudeClock - Injected Script v2.1.0
 // This script runs in the page context to intercept fetch
+// Firefox-compatible version with enhanced stream handling
 
 (function() {
   'use strict';
@@ -22,7 +23,7 @@
     return `[${now.toISOString()}] (${humanReadable})\n`;
   }
 
-  console.log('ClaudeClock v2.0.0: Injected script loaded');
+  console.log('ClaudeClock v2.1.0: Injected script loaded');
 
   // Intercept fetch API
   const originalFetch = window.fetch;
@@ -75,12 +76,25 @@
     // Intercept AI responses (streaming)
     if (url && typeof url === 'string' && url.includes('/api/')) {
       console.log('ClaudeClock: Checking response from:', url);
-      console.log('ClaudeClock: Content-Type:', response.headers.get('content-type'));
+      
+      const contentType = response.headers.get('content-type');
+      console.log('ClaudeClock: Content-Type:', contentType);
 
       // For streaming responses, we need to intercept the stream
-      if (response.body && response.headers.get('content-type')?.includes('text/event-stream')) {
+      if (response.body && contentType && contentType.includes('text/event-stream')) {
         console.log('ClaudeClock: Found streaming response, intercepting...');
-        const originalBody = response.body;
+        
+        // Firefox-compatible stream handling
+        // Clone the response to avoid "body already read" errors
+        const clonedResponse = response.clone();
+        const originalBody = clonedResponse.body;
+        
+        // Check if getReader is available (should be, but defensive)
+        if (!originalBody.getReader) {
+          console.warn('ClaudeClock: ReadableStream.getReader not available, skipping interception');
+          return response;
+        }
+
         const reader = originalBody.getReader();
         const decoder = new TextDecoder();
         let firstTextFound = false;
@@ -91,7 +105,10 @@
             try {
               while (true) {
                 const { done, value } = await reader.read();
-                if (done) break;
+                if (done) {
+                  controller.close();
+                  break;
+                }
 
                 let chunk = decoder.decode(value, { stream: true });
                 chunkCount++;
@@ -118,14 +135,16 @@
 
                   for (let pattern of patterns) {
                     const match = chunk.match(pattern.regex);
-                    if (match && match[1].length > 0) {
+                    if (match && match[1] && match[1].length > 0) {
                       const timestamp = getTimestamp();
                       console.log(`ClaudeClock: Found first text using pattern '${pattern.name}', injecting timestamp`);
                       console.log('ClaudeClock: Matched text:', match[1]);
 
                       // Inject timestamp at the beginning of the text
+                      // Escape newline for JSON
+                      const escapedTimestamp = timestamp.replace(/\n/g, '\\n');
                       chunk = chunk.replace(pattern.regex, (fullMatch, capturedText) => {
-                        return fullMatch.replace(`"${capturedText}"`, `"${timestamp.replace(/\n/g, '\\n')}${capturedText}"`);
+                        return fullMatch.replace(`"${capturedText}"`, `"${escapedTimestamp}${capturedText}"`);
                       });
                       firstTextFound = true;
                       console.log('ClaudeClock: Timestamp injected into AI response');
@@ -135,16 +154,23 @@
                   }
                 }
 
+                // Enqueue the (possibly modified) chunk
                 controller.enqueue(new TextEncoder().encode(chunk));
               }
-              controller.close();
             } catch (e) {
               console.error('ClaudeClock: Stream error:', e);
               controller.error(e);
             }
+          },
+          
+          // Firefox sometimes needs explicit cancel handler
+          cancel(reason) {
+            console.log('ClaudeClock: Stream cancelled:', reason);
+            reader.cancel(reason);
           }
         });
 
+        // Return new response with intercepted stream
         return new Response(stream, {
           status: response.status,
           statusText: response.statusText,
