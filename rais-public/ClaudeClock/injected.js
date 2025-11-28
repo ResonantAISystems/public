@@ -1,26 +1,58 @@
 // ClaudeClock - Injected Script v2.1.0
 // This script runs in the page context to intercept fetch
-// Firefox-compatible version with enhanced stream handling
 
 (function() {
   'use strict';
 
-function getTimestamp() {
-  const now = new Date();
+  // Timezone settings (defaults)
+  let timezoneSettings = {
+    useLocal: false,
+    timezone: 'America/New_York'
+  };
 
-  // Get PST time (America/Los_Angeles handles PST/PDT automatically)
-   const pstTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
+  // Listen for settings from content script
+  window.addEventListener('message', function(event) {
+    if (event.source !== window) return;
+    if (event.data.type === 'CLAUDECLOCK_SETTINGS') {
+      timezoneSettings = event.data.settings;
+      console.log('ClaudeClock: Settings updated:', timezoneSettings);
+    }
+  });
 
-  // Format as hh:mm AM/PM
-  let hours = pstTime.getHours();
-  const minutes = pstTime.getMinutes().toString().padStart(2, '0');
-  const ampm = hours >= 12 ? 'PM' : 'AM';
-  hours = hours % 12 || 12; // Convert to 12-hour format
+  // Function to get current timestamp
+  function getTimestamp() {
+    const now = new Date();
+    let timeZone, displayTime;
 
-   const humanReadable = `${hours}:${minutes} ${ampm} PST`;
+    if (timezoneSettings.useLocal) {
+      // Use browser's local timezone
+      timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    } else {
+      // Use selected timezone
+      timeZone = timezoneSettings.timezone;
+    }
 
-  return `[${now.toISOString()}] (${humanReadable})\n`;
-}
+    // Get time in selected timezone
+    const localTime = new Date(now.toLocaleString('en-US', { timeZone }));
+
+    // Format as hh:mm AM/PM
+    let hours = localTime.getHours();
+    const minutes = localTime.getMinutes().toString().padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12; // Convert to 12-hour format
+
+    // Get timezone abbreviation
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone,
+      timeZoneName: 'short'
+    });
+    const parts = formatter.formatToParts(now);
+    const tzAbbr = parts.find(p => p.type === 'timeZoneName')?.value || timeZone.split('/').pop();
+
+    const humanReadable = `${hours}:${minutes} ${ampm} ${tzAbbr}`;
+
+    return `[${now.toISOString()}] (${humanReadable})\n`;
+  }
 
   console.log('ClaudeClock v2.1.0: Injected script loaded');
 
@@ -75,25 +107,12 @@ function getTimestamp() {
     // Intercept AI responses (streaming)
     if (url && typeof url === 'string' && url.includes('/api/')) {
       console.log('ClaudeClock: Checking response from:', url);
-      
-      const contentType = response.headers.get('content-type');
-      console.log('ClaudeClock: Content-Type:', contentType);
+      console.log('ClaudeClock: Content-Type:', response.headers.get('content-type'));
 
       // For streaming responses, we need to intercept the stream
-      if (response.body && contentType && contentType.includes('text/event-stream')) {
+      if (response.body && response.headers.get('content-type')?.includes('text/event-stream')) {
         console.log('ClaudeClock: Found streaming response, intercepting...');
-        
-        // Firefox-compatible stream handling
-        // Clone the response to avoid "body already read" errors
-        const clonedResponse = response.clone();
-        const originalBody = clonedResponse.body;
-        
-        // Check if getReader is available (should be, but defensive)
-        if (!originalBody.getReader) {
-          console.warn('ClaudeClock: ReadableStream.getReader not available, skipping interception');
-          return response;
-        }
-
+        const originalBody = response.body;
         const reader = originalBody.getReader();
         const decoder = new TextDecoder();
         let firstTextFound = false;
@@ -104,10 +123,7 @@ function getTimestamp() {
             try {
               while (true) {
                 const { done, value } = await reader.read();
-                if (done) {
-                  controller.close();
-                  break;
-                }
+                if (done) break;
 
                 let chunk = decoder.decode(value, { stream: true });
                 chunkCount++;
@@ -134,16 +150,14 @@ function getTimestamp() {
 
                   for (let pattern of patterns) {
                     const match = chunk.match(pattern.regex);
-                    if (match && match[1] && match[1].length > 0) {
+                    if (match && match[1].length > 0) {
                       const timestamp = getTimestamp();
                       console.log(`ClaudeClock: Found first text using pattern '${pattern.name}', injecting timestamp`);
                       console.log('ClaudeClock: Matched text:', match[1]);
 
                       // Inject timestamp at the beginning of the text
-                      // Escape newline for JSON
-                      const escapedTimestamp = timestamp.replace(/\n/g, '\\n');
                       chunk = chunk.replace(pattern.regex, (fullMatch, capturedText) => {
-                        return fullMatch.replace(`"${capturedText}"`, `"${escapedTimestamp}${capturedText}"`);
+                        return fullMatch.replace(`"${capturedText}"`, `"${timestamp.replace(/\n/g, '\\n')}${capturedText}"`);
                       });
                       firstTextFound = true;
                       console.log('ClaudeClock: Timestamp injected into AI response');
@@ -153,23 +167,16 @@ function getTimestamp() {
                   }
                 }
 
-                // Enqueue the (possibly modified) chunk
                 controller.enqueue(new TextEncoder().encode(chunk));
               }
+              controller.close();
             } catch (e) {
               console.error('ClaudeClock: Stream error:', e);
               controller.error(e);
             }
-          },
-          
-          // Firefox sometimes needs explicit cancel handler
-          cancel(reason) {
-            console.log('ClaudeClock: Stream cancelled:', reason);
-            reader.cancel(reason);
           }
         });
 
-        // Return new response with intercepted stream
         return new Response(stream, {
           status: response.status,
           statusText: response.statusText,
