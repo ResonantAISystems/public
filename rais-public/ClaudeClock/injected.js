@@ -9,7 +9,7 @@ function getTimestamp() {
   const now = new Date();
 
   // Get PST time (America/Los_Angeles handles PST/PDT automatically)
-  const pstTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
+   const pstTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
 
   // Format as hh:mm AM/PM
   let hours = pstTime.getHours();
@@ -17,7 +17,7 @@ function getTimestamp() {
   const ampm = hours >= 12 ? 'PM' : 'AM';
   hours = hours % 12 || 12; // Convert to 12-hour format
 
-  const humanReadable = `${hours}:${minutes} ${ampm} PST`;
+   const humanReadable = `${hours}:${minutes} ${ampm} PST`;
 
   return `[${now.toISOString()}] (${humanReadable})\n`;
 }
