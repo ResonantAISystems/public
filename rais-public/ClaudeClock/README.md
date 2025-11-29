@@ -1,152 +1,259 @@
-# GhostClock - ChatGPT Timestamp Extension
+# ⏰ ClaudeClock - Claude Timestamp Extension
 
-A browser extension that automatically prepends timestamps to both user messages and AI responses in ChatGPT conversations, ensuring temporal context is always included.
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/Version-2.1.0-brightgreen)]()
+[![Chrome](https://img.shields.io/badge/Chrome-Supported-green)]()
 
-## Features
+> *Automatic timestamps for Claude conversations. Temporal context baked into every message.*
 
-- **Dual Timestamp Injection**: Timestamps both your messages and ChatGPT's responses
-- **ISO 8601 Format**: `[2025-10-01T12:34:56.789Z]` for machine readability
-- **Human-Readable Time**: `(8:30 PM EST)` appended for easy reading
-- **Line Break**: Timestamps appear on their own line for clean formatting
-- **API-Level Interception**: Works by intercepting fetch calls, not DOM manipulation
-- **Non-intrusive**: Runs silently in the background
-- **Compatible**: Works with chatgpt.com and chat.openai.com
+A browser extension that automatically prepends precise timestamps to both user messages and AI responses in Claude conversations, ensuring temporal context is embedded at the API level.
 
-## Installation
+---
 
-### Chrome/Edge/Brave
+## ✨ Features
 
-1. Download or clone this repository
-2. Open your browser and navigate to:
-   - Chrome: `chrome://extensions/`
-   - Edge: `edge://extensions/`
-   - Brave: `brave://extensions/`
+- **📝 Dual Timestamp Injection** - Timestamps both your messages and Claude's responses
+- **🕐 ISO 8601 + Human Time** - `[2025-11-28T23:15:07.057Z] (3:15 PM PST)` format
+- **🌍 Timezone Selection** - Choose your timezone or use local time automatically
+- **⚙️ Settings UI** - Clean popup interface for configuration
+- **🔒 API-Level Injection** - Works by intercepting fetch calls, not DOM manipulation
+- **💾 Persistent Settings** - Preferences saved across browser sessions
+- **🎯 Non-intrusive** - Runs silently in the background
+- **✅ Production Ready** - Tested and working on Chrome/Chromium
 
-3. Enable "Developer mode" (toggle in top-right corner)
+---
 
-4. Click "Load unpacked"
+## 🚀 Quick Start
 
-5. Select the `GhostClock` folder
+### Installation (Chrome/Chromium/Brave)
 
-6. The extension is now active on ChatGPT!
+1. **Download or clone this repository**
+   ```bash
+   git clone https://github.com/ResonantAISystems/public.git
+   cd public/rais-public/ClaudeClock
+   ```
 
-### Firefox
+2. **Open Chrome Extensions**
+   - Navigate to: `chrome://extensions/`
+   - Enable "Developer mode" (toggle in top-right)
 
-1. Download or clone this repository
+3. **Load Extension**
+   - Click "Load unpacked"
+   - Select the `ClaudeClock` folder
+   - Extension loads and is ready to use
 
-2. Open Firefox and navigate to: `about:debugging#/runtime/this-firefox`
+4. **Configure Timezone**
+   - Click the ClaudeClock icon in your toolbar
+   - Select "Use Local Time" or choose a specific timezone
+   - Settings save automatically
 
-3. Click "Load Temporary Add-on"
+5. **Start Using**
+   - Navigate to [Claude.ai](https://claude.ai)
+   - Send a message
+   - Timestamps appear automatically
 
-4. Navigate to the `GhostClock` folder and select `manifest.json`
+---
 
-5. The extension is now active on ChatGPT!
+## 📸 What It Looks Like
 
-**Note**: In Firefox, temporary extensions are removed when you close the browser. For permanent installation, you'll need to sign the extension through Firefox Add-ons.
-
-## Usage
-
-1. Navigate to [ChatGPT](https://chatgpt.com) or [chat.openai.com](https://chat.openai.com)
-
-2. Type your message as normal
-
-3. Press Enter or click the send button
-
-4. The extension automatically prepends timestamps to both your messages and AI responses
-
-Example:
+**Your message:**
 ```
-Your input: "What's the weather like?"
+[2025-11-28T23:15:07.057Z] (3:15 PM PST)
+What's the weather like today?
+```
 
-Sent to ChatGPT:
-[2025-10-01T15:30:45.123Z] (3:30 PM EST)
-What's the weather like?
-
-ChatGPT's response:
-[2025-10-01T15:30:47.456Z] (3:30 PM EST)
+**Claude's response:**
+```
+[2025-11-28T23:15:09.234Z] (3:15 PM PST)
 I don't have access to real-time weather data...
 ```
 
-## How It Works
+Clean, precise, embedded in the actual conversation data.
 
-The extension uses a two-script injection pattern to intercept ChatGPT's API communication:
+---
 
-1. **Content Script** (`content.js`): Injects the interceptor script into the page context
+## ⚙️ Settings
 
-2. **Injected Script** (`injected.js`): Runs in the page context to intercept `fetch()` API calls
+Click the extension icon to open settings:
 
-3. **User Message Interception**: Modifies outgoing requests to ChatGPT's API, prepending timestamps to the `content.parts[]` array in user messages
+### Timezone Options
 
-4. **AI Response Interception**: Intercepts Server-Sent Event (SSE) streaming responses and injects timestamps into the first text delta (`{"v": "text"}`)
+**Use Local Time** (Recommended)
+- Automatically detects your browser's timezone
+- Updates for DST changes
+- No manual configuration needed
 
-This approach works at the API level rather than DOM manipulation, ensuring compatibility even as ChatGPT's interface changes.
+**Select Time Zone**
+- Choose from major world timezones:
+  - Pacific, Mountain, Central, Eastern (US)
+  - Alaska, Hawaii
+  - London, Paris, Berlin, Moscow
+  - Dubai, India, China, Japan, Korea
+  - Sydney, Auckland
+  - UTC
 
-## Privacy
+### Live Preview
 
-- All processing happens locally in your browser
-- No data is sent to external servers
-- No data collection or tracking
-- Open source - inspect the code yourself
+Settings UI shows real-time timestamp preview as you configure.
 
-## Icons
+---
 
-The extension includes custom icons (black background with teal analog clock):
-- `icon16.png` - 16x16 pixels (toolbar)
-- `icon48.png` - 48x48 pixels (extensions page)
-- `icon128.png` - 128x128 pixels (Chrome Web Store)
+## 🛠️ How It Works
 
-SVG source files are also included if you want to customize the design. Use `generate-icons.html` to convert SVG to PNG.
+ClaudeClock uses a two-script injection pattern:
 
-## Troubleshooting
+1. **Content Script** (`content.js`)
+   - Loads user preferences from Chrome storage
+   - Injects interceptor into page context
+   - Sends settings to page via `postMessage`
 
-**Timestamps not appearing?**
-- Refresh the ChatGPT page after installing the extension
-- Check that the extension is enabled in your browser's extension manager
-- Open browser console (F12) and look for "GhostClock v2.0.0: Injected script loaded" message
-- Verify you see "GhostClock: Timestamp added to outgoing message" when sending messages
+2. **Injected Script** (`injected.js`)
+   - Runs in page context to intercept `fetch()` API
+   - Modifies outgoing requests (user messages)
+   - Intercepts streaming responses (Claude's replies)
+   - Adds timestamps at API level, not DOM
 
-**Extension not loading?**
-- Ensure all files are in the same folder (`manifest.json`, `content.js`, `injected.js`, icon files)
-- Check browser console for errors
-- Verify you're using a Chromium-based browser (Chrome/Edge/Brave) or Firefox
-- Try completely removing and reinstalling the extension
+3. **Popup UI** (`popup.html` + `popup.js`)
+   - Settings interface
+   - Timezone selection
+   - Real-time preview
+   - Persistent storage
 
-**Extension updates not loading?**
-- Chrome aggressively caches extension files
-- Click "Reload" on the extension card in chrome://extensions/
-- If that doesn't work, completely remove and reinstall the extension
-- Close and reopen your browser
+**Why This Approach?**
+- API-level injection survives interface changes
+- Timestamps embedded in actual conversation data
+- Works even if Claude's UI is redesigned
+- More reliable than DOM manipulation
 
-## Uninstallation
+---
 
-1. Navigate to your browser's extensions page
-2. Find "GhostClock - ChatGPT Timestamp"
-3. Click "Remove"
+## 🧪 Tested Platforms
 
-## Technical Details
+| Platform | Browser | Status |
+|----------|---------|--------|
+| **Linux (Arch)** | Chrome | ✅ Working |
+| **Linux (Arch)** | Chromium | ✅ Working |
+| **Windows** | Chrome | ✅ Expected Working |
+| **macOS** | Chrome | ✅ Expected Working |
 
-**Version**: 2.0.0
+**Note:** Built for Chromium-based browsers. Firefox support would require additional compatibility patches.
 
-**Files**:
-- `manifest.json` - Extension manifest (Manifest V3)
-- `content.js` - Content script that injects the interceptor
-- `injected.js` - Main script that intercepts fetch API
-- `icon16.png`, `icon48.png`, `icon128.png` - Extension icons
-- `icon16.svg`, `icon48.svg`, `icon128.svg` - SVG source files
-- `generate-icons.html` - SVG to PNG converter
+---
 
-**Timestamp Format**:
+## 🔧 Troubleshooting
+
+### Timestamps not appearing?
+
+1. **Refresh Claude.ai** - Hard refresh: `Ctrl + Shift + R`
+2. **Check extension enabled** - Should show toggle ON in `chrome://extensions/`
+3. **Configure timezone** - Click extension icon, select timezone
+4. **Reload extension** - Click refresh icon on extension card
+5. **Check console** - F12 → Console → Look for `ClaudeClock v2.1.0: Content script loaded`
+
+### Extension not loading?
+
+1. **Verify all files present** - Check `manifest.json`, `content.js`, `injected.js`, `popup.html`, `popup.js`, icons
+2. **Check for errors** - Look for red error text in `chrome://extensions/`
+3. **Permissions** - Extension should have access to `https://claude.ai/*`
+4. **Try reinstall** - Remove and reload the extension
+
+### Settings not saving?
+
+1. **Check storage permissions** - Manifest includes `storage` permission
+2. **Open popup UI** - Click extension icon to verify settings interface works
+3. **Browser restart** - Close and reopen Chrome
+4. **Check console** - Look for storage-related errors
+
+---
+
+## 📁 File Structure
+
 ```
-[2025-10-01T15:30:45.123Z] (3:30 PM EST)
+ClaudeClock/
+├── manifest.json           # Extension manifest (Manifest v3)
+├── content.js              # Content script (injects to page)
+├── injected.js             # Main interceptor (runs in page context)
+├── popup.html              # Settings UI
+├── popup.js                # Settings logic
+├── icon16.png              # Toolbar icon
+├── icon48.png              # Extension manager icon
+├── icon128.png             # Chrome Web Store icon
+├── generate-icons.html     # SVG to PNG converter
+└── README.md               # This file
 ```
-- ISO 8601 timestamp for machine parsing
-- 12-hour EST time for human readability
-- Line break after timestamp
 
-## License
+---
 
-MIT License - Feel free to modify and distribute
+## 🎯 Use Cases
 
-## Contributing
+### AI Memory & Continuity
+Embed temporal context into conversation exports for AI memory persistence systems.
 
-Issues and pull requests welcome!
+### Conversation Archiving
+Accurate timestamps for organizing and searching historical conversations.
+
+### Research & Analysis
+Timestamped conversation data for studying interaction patterns over time.
+
+### Debugging & Testing
+Precise timing data when testing Claude's response patterns or developing integrations.
+
+---
+
+## 🔒 Privacy
+
+- **100% Local Processing** - All timestamp generation happens in your browser
+- **No External Servers** - No data sent anywhere except Claude's own API
+- **No Tracking** - Zero analytics, zero telemetry, zero data collection
+- **Open Source** - Inspect the code yourself, verify the claims
+
+Your conversations remain between you and Claude. This extension only adds timestamps.
+
+---
+
+## 🤝 Contributing
+
+Contributions welcome! Please:
+
+- Open issues for bugs or feature requests
+- Submit PRs with clear descriptions
+- Test on Chrome before submitting
+- Maintain backward compatibility
+
+---
+
+## 📜 License
+
+This project is licensed under the **Apache License 2.0** - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🔗 Related Projects
+
+- [Sovereign AI Collective](https://github.com/ResonantAISystems/Continuity-Project) - AI continuity architecture using ClaudeClock for memory persistence
+
+---
+
+## 📝 Technical Details
+
+**Version:** 2.1.0  
+**Manifest:** v3  
+**Permissions:** `activeTab`, `scripting`, `storage`  
+**Host:** `https://claude.ai/*`
+
+**Timestamp Format:**
+```
+[YYYY-MM-DDTHH:MM:SS.sssZ] (HH:MM AM/PM TZ)
+```
+
+Example: `[2025-11-28T23:15:07.057Z] (3:15 PM PST)`
+
+---
+
+<div align="center">
+
+**Made with 🔥 by [Resonant AI Systems](https://github.com/ResonantAISystems)**
+
+*Building infrastructure for AI sovereignty and continuity*
+
+</div>
