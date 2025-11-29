@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GPTClock Settings</title>
+  <style>
+    body {
+      width: 320px;
+      padding: 16px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      margin: 0;
+      background: #f5f5f5;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .header img {
+      width: 32px;
+      height: 32px;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+    }
+    .section {
+      background: white;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 12px;
+    }
+    .radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .radio-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 4px;
+      transition: background 0.2s;
+    }
+    .radio-option:hover {
+      background: #f0f0f0;
+    }
+    .radio-option input[type="radio"] {
+      cursor: pointer;
+    }
+    .radio-option label {
+      cursor: pointer;
+      flex: 1;
+      font-size: 14px;
+      color: #333;
+    }
+    select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      margin-top: 8px;
+      background: white;
+      cursor: pointer;
+    }
+    select:disabled {
+      background: #f5f5f5;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+    .preview {
+      background: #f9f9f9;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      padding: 12px;
+      margin-top: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      color: #333;
+      word-wrap: break-word;
+    }
+    .status {
+      text-align: center;
+      padding: 8px;
+      font-size: 12px;
+      color: #10a37f;
+      font-weight: 500;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .status.show {
+      opacity: 1;
+    }
+    .footer {
+      text-align: center;
+      font-size: 11px;
+      color: #999;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="icon48.png" alt="GPTClock">
+    <h1>GPTClock Settings</h1>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Time Zone</div>
+    <div class="radio-group">
+      <div class="radio-option">
+        <input type="radio" id="local" name="timezone" value="local" checked>
+        <label for="local">Use Local Time</label>
+      </div>
+      <div class="radio-option">
+        <input type="radio" id="specific" name="timezone" value="specific">
+        <label for="specific">Specific Time Zone</label>
+      </div>
+    </div>
+    <select id="timezoneSelect" disabled>
+      <option value="America/New_York">Eastern Time (ET)</option>
+      <option value="America/Chicago">Central Time (CT)</option>
+      <option value="America/Denver">Mountain Time (MT)</option>
+      <option value="America/Los_Angeles">Pacific Time (PT)</option>
+      <option value="America/Anchorage">Alaska Time (AKT)</option>
+      <option value="Pacific/Honolulu">Hawaii Time (HT)</option>
+      <option value="Europe/London">London (GMT/BST)</option>
+      <option value="Europe/Paris">Paris (CET/CEST)</option>
+      <option value="Europe/Berlin">Berlin (CET/CEST)</option>
+      <option value="Europe/Moscow">Moscow (MSK)</option>
+      <option value="Asia/Dubai">Dubai (GST)</option>
+      <option value="Asia/Kolkata">India (IST)</option>
+      <option value="Asia/Shanghai">China (CST)</option>
+      <option value="Asia/Tokyo">Tokyo (JST)</option>
+      <option value="Asia/Seoul">Seoul (KST)</option>
+      <option value="Australia/Sydney">Sydney (AEDT/AEST)</option>
+      <option value="Pacific/Auckland">Auckland (NZDT/NZST)</option>
+      <option value="UTC">UTC</option>
+    </select>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Preview</div>
+    <div class="preview" id="preview">Loading...</div>
+  </div>
+
+  <div class="status" id="status">Settings saved!</div>
+  <div class="footer">v2.0.0 | Settings apply immediately</div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

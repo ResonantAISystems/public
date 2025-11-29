@@ -1,28 +1,60 @@
-// ClaudeClock - Injected Script v2.0.0
+// ClaudeClock - Injected Script v2.1.0
 // This script runs in the page context to intercept fetch
 
 (function() {
   'use strict';
 
+  // Timezone settings (defaults)
+  let timezoneSettings = {
+    useLocal: false,
+    timezone: 'America/New_York'
+  };
+
+  // Listen for settings from content script
+  window.addEventListener('message', function(event) {
+    if (event.source !== window) return;
+    if (event.data.type === 'CLAUDECLOCK_SETTINGS') {
+      timezoneSettings = event.data.settings;
+      console.log('ClaudeClock: Settings updated:', timezoneSettings);
+    }
+  });
+
   // Function to get current timestamp
   function getTimestamp() {
     const now = new Date();
+    let timeZone, displayTime;
 
-    // Get EST time (UTC-5, or UTC-4 during DST)
-    const estTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+    if (timezoneSettings.useLocal) {
+      // Use browser's local timezone
+      timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    } else {
+      // Use selected timezone
+      timeZone = timezoneSettings.timezone;
+    }
+
+    // Get time in selected timezone
+    const localTime = new Date(now.toLocaleString('en-US', { timeZone }));
 
     // Format as hh:mm AM/PM
-    let hours = estTime.getHours();
-    const minutes = estTime.getMinutes().toString().padStart(2, '0');
+    let hours = localTime.getHours();
+    const minutes = localTime.getMinutes().toString().padStart(2, '0');
     const ampm = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12 || 12; // Convert to 12-hour format
 
-    const humanReadable = `${hours}:${minutes} ${ampm} EST`;
+    // Get timezone abbreviation
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone,
+      timeZoneName: 'short'
+    });
+    const parts = formatter.formatToParts(now);
+    const tzAbbr = parts.find(p => p.type === 'timeZoneName')?.value || timeZone.split('/').pop();
+
+    const humanReadable = `${hours}:${minutes} ${ampm} ${tzAbbr}`;
 
     return `[${now.toISOString()}] (${humanReadable})\n`;
   }
 
-  console.log('ClaudeClock v2.0.0: Injected script loaded');
+  console.log('ClaudeClock v2.1.0: Injected script loaded');
 
   // Intercept fetch API
   const originalFetch = window.fetch;

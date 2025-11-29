@@ -8,21 +8,76 @@
   function getTimestamp() {
     const now = new Date();
 
-    // Get EST time (UTC-5, or UTC-4 during DST)
-    const estTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+    // Get settings from window (injected by content script)
+    const settings = window.__GPTClockSettings || { timezoneMode: 'local', timezoneValue: 'America/New_York' };
+
+    console.log('GPTClock: Using settings:', JSON.stringify(settings));
+
+    let timeZone, tzAbbr;
+
+    if (settings.timezoneMode === 'local') {
+      // Use local time
+      timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      console.log('GPTClock: Using local timezone:', timeZone);
+
+      // Get local time zone abbreviation
+      const localTimeStr = now.toLocaleString('en-US', {
+        timeZoneName: 'short'
+      });
+      const match = localTimeStr.match(/\b([A-Z]{2,5})\b$/);
+      tzAbbr = match ? match[1] : 'Local';
+    } else {
+      // Use specific timezone from settings
+      timeZone = settings.timezoneValue;
+      console.log('GPTClock: Using specific timezone:', timeZone);
+
+      // Get timezone abbreviation
+      const tzTimeStr = now.toLocaleString('en-US', {
+        timeZone: timeZone,
+        timeZoneName: 'short'
+      });
+      const match = tzTimeStr.match(/\b([A-Z]{2,5})\b$/);
+      tzAbbr = match ? match[1] : timeZone.split('/')[1];
+    }
+
+    // Get time in selected timezone
+    const tzTime = new Date(now.toLocaleString('en-US', { timeZone: timeZone }));
 
     // Format as hh:mm AM/PM
-    let hours = estTime.getHours();
-    const minutes = estTime.getMinutes().toString().padStart(2, '0');
+    let hours = tzTime.getHours();
+    const minutes = tzTime.getMinutes().toString().padStart(2, '0');
     const ampm = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12 || 12; // Convert to 12-hour format
 
-    const humanReadable = `${hours}:${minutes} ${ampm} EST`;
+    const humanReadable = `${hours}:${minutes} ${ampm} ${tzAbbr}`;
+    const timestamp = `[${now.toISOString()}] (${humanReadable})\n`;
 
-    return `[${now.toISOString()}] (${humanReadable})\n`;
+    console.log('GPTClock: Generated timestamp:', timestamp.trim());
+
+    return timestamp;
   }
 
   console.log('GPTClock v2.0.0: Injected script loaded');
+
+  // Get settings from the script tag's data attribute
+  const currentScript = document.querySelector('script[data-gptclock-settings]');
+  let defaultSettings = { timezoneMode: 'local', timezoneValue: 'America/New_York' };
+
+  if (currentScript) {
+    try {
+      const settingsJson = currentScript.getAttribute('data-gptclock-settings');
+      defaultSettings = JSON.parse(settingsJson);
+      console.log('GPTClock: Loaded settings from script attribute:', defaultSettings);
+    } catch (e) {
+      console.error('GPTClock: Failed to parse settings from script attribute:', e);
+    }
+  } else {
+    console.warn('GPTClock: No settings found on script tag, using defaults');
+  }
+
+  // Set global settings for getTimestamp to use
+  window.__GPTClockSettings = defaultSettings;
+  console.log('GPTClock: Settings available:', window.__GPTClockSettings);
 
   // Intercept fetch API
   const originalFetch = window.fetch;

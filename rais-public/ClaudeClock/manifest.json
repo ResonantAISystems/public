@@ -1,12 +1,21 @@
 {
   "manifest_version": 3,
   "name": "ClaudeClock - Claude Timestamp",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Automatically prepends timestamps to Claude messages",
   "permissions": [
     "activeTab",
-    "scripting"
+    "scripting",
+    "storage"
   ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  },
   "host_permissions": [
     "https://claude.ai/*"
   ],
