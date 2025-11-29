@@ -7,6 +7,8 @@ A browser extension that automatically prepends timestamps to both user messages
 - **Dual Timestamp Injection**: Timestamps both your messages and ChatGPT's responses
 - **ISO 8601 Format**: `[2025-10-01T12:34:56.789Z]` for machine readability
 - **Human-Readable Time**: `(8:30 PM EST)` appended for easy reading
+- **Configurable Time Zone**: Choose between local time or any of 18 specific time zones worldwide
+- **Settings UI**: Easy-to-use popup interface with live timestamp preview
 - **Line Break**: Timestamps appear on their own line for clean formatting
 - **API-Level Interception**: Works by intercepting fetch calls, not DOM manipulation
 - **Non-intrusive**: Runs silently in the background
@@ -66,6 +68,32 @@ ChatGPT's response:
 [2025-10-01T15:30:47.456Z] (3:30 PM EST)
 I don't have access to real-time weather data...
 ```
+
+## Configuration
+
+### Accessing Settings
+
+Click the GPTClock extension icon in your browser toolbar to open the settings popup.
+
+### Time Zone Options
+
+The extension offers two time zone modes:
+
+1. **Use Local Time** (default): Automatically uses your computer's local time zone
+2. **Specific Time Zone**: Choose from 18 major time zones:
+   - **US Time Zones**: Eastern (ET), Central (CT), Mountain (MT), Pacific (PT), Alaska (AKT), Hawaii (HT)
+   - **European Time Zones**: London (GMT/BST), Paris (CET/CEST), Berlin (CET/CEST), Moscow (MSK)
+   - **Asian Time Zones**: Dubai (GST), India (IST), China (CST), Tokyo (JST), Seoul (KST)
+   - **Oceania Time Zones**: Sydney (AEDT/AEST), Auckland (NZDT/NZST)
+   - **UTC**: Coordinated Universal Time
+
+### Live Preview
+
+The settings popup includes a live preview that updates every second, showing exactly how timestamps will appear in your ChatGPT conversations with your current configuration.
+
+### Automatic Saving
+
+All settings changes are saved automatically and apply immediately to new messages. No need to refresh the ChatGPT page.
 
 ## How It Works
 
@@ -131,6 +159,8 @@ SVG source files are also included if you want to customize the design. Use `gen
 - `manifest.json` - Extension manifest (Manifest V3)
 - `content.js` - Content script that injects the interceptor
 - `injected.js` - Main script that intercepts fetch API
+- `popup.html` - Settings UI interface
+- `popup.js` - Settings UI logic and storage management
 - `icon16.png`, `icon48.png`, `icon128.png` - Extension icons
 - `icon16.svg`, `icon48.svg`, `icon128.svg` - SVG source files
 - `generate-icons.html` - SVG to PNG converter
@@ -140,8 +170,13 @@ SVG source files are also included if you want to customize the design. Use `gen
 [2025-10-01T15:30:45.123Z] (3:30 PM EST)
 ```
 - ISO 8601 timestamp for machine parsing
-- 12-hour EST time for human readability
+- 12-hour time with configurable time zone for human readability
 - Line break after timestamp
+
+**Settings Storage**:
+- Settings are stored in `chrome.storage.sync` for cross-device synchronization
+- `timezoneMode`: Either "local" or "specific"
+- `timezoneValue`: IANA time zone identifier (e.g., "America/New_York")
 
 ## License
 

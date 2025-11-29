@@ -14,8 +14,10 @@ Content scripts run in an **isolated world** - they cannot intercept the page's 
 
 **Pattern Used:**
 1. `content.js` (content script) → Runs in isolated world
-2. `content.js` injects `injected.js` into page via `<script>` tag
-3. `injected.js` (page context) → Can intercept `window.fetch`
+2. `content.js` loads user settings from `chrome.storage.sync`
+3. `content.js` injects `injected.js` into page via `<script>` tag with settings in `data-gptclock-settings` attribute
+4. `injected.js` (page context) → Can intercept `window.fetch` and access settings
+5. `content.js` listens for settings changes and dynamically updates `window.__GPTClockSettings`
 
 **Manifest Configuration:**
 ```json
@@ -292,13 +294,43 @@ POST /v1/rgstr
 
 These are ChatGPT's internal telemetry and can safely be ignored (they're not JSON, hence parse errors).
 
+## Timestamp Generation
+
+The `getTimestamp()` function is responsible for generating timestamp strings based on user preferences:
+
+```javascript
+function getTimestamp() {
+  const now = new Date();
+  const settings = window.__GPTClockSettings || {
+    timezoneMode: 'local',
+    timezoneValue: 'America/New_York'
+  };
+
+  // Generate ISO 8601 timestamp and human-readable time
+  // Based on configured timezone (local or specific)
+  // Returns: "[2025-10-01T15:30:45.123Z] (3:30 PM EST)\n"
+}
+```
+
+**Timezone Configuration:**
+- Settings stored in `chrome.storage.sync`
+- Passed to page context via `data-gptclock-settings` attribute on injected script tag
+- `timezoneMode`: "local" (system timezone) or "specific" (user-selected)
+- `timezoneValue`: IANA timezone identifier (e.g., "America/New_York", "Asia/Tokyo")
+
+**Settings Injection Flow:**
+1. `content.js` reads settings from `chrome.storage.sync`
+2. Settings passed as JSON in `data-gptclock-settings` attribute on `<script>` tag
+3. `injected.js` reads attribute and stores in `window.__GPTClockSettings`
+4. `getTimestamp()` uses settings to format time in correct timezone
+
 ## Version History
 
 - **v1.0.0** - Initial attempt with DOM manipulation (failed)
 - **v1.4.0** - Two-script injection pattern implemented
 - **v1.5.0** - User message injection working via `content.parts[]`
 - **v1.8.0** - Discovered `parts` array is empty in AI responses
-- **v2.0.0** - AI response injection working via `{"v": "text"}` deltas
+- **v2.0.0** - AI response injection working via `{"v": "text"}` deltas, added timezone configuration UI
 
 ## Conclusion
 
